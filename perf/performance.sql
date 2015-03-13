@@ -26,23 +26,32 @@ func! random_phone() RETURNS text
 --       improve patient resource (add adress etc.)
 --       add more resources (encounter, order etc.)
 func! insert_patients(_total_count_ integer, _offset_ integer) RETURNS bigint
-  WITH x as (
-    SELECT * from temp.patient_names
-     OFFSET _offset_
-     LIMIT _total_count_
-  ), patient_data as (
-    select x.first_name as given_name,
-           x.last_name as family_name,
-           x.sex as gender,
+  WITH
+  -- x as (
+  --   SELECT * from temp.patient_names
+  --    OFFSET _offset_
+  --    LIMIT _total_count_
+  -- ),
+  patient_data as (
+    select
+           -- x.first_name as given_name,
+           -- x.last_name as family_name,
+           -- x.sex as gender,
            this.random_date() as birth_date,
            this.random_phone() as phone,
            this.random_elem(languages) as language,
-           this.random_elem(street_names) as street_name
-    from x, (
+           this.random_elem(street_names) as street_name,
+           this.random_elem(first_names) as first_name,
+           this.random_elem(last_names) as last_name
+    from generate_series(0, _total_count_), (
       SELECT array_agg(languages) as languages FROM temp.languages
     ) __, (
       SELECT array_agg(street_name) as street_names FROM temp.street_names
-    ) ___
+    ) ___, (
+      SELECT array_agg(first_names) as first_names FROM temp.first_names
+    ) ____, (
+      SELECT array_agg(last_name) as last_names FROM temp.last_names
+    ) _____
   ), inserted as (
     INSERT into patient (logical_id, version_id, content)
     SELECT obj->>'id', obj#>>'{meta,versionId}', obj
@@ -55,12 +64,12 @@ func! insert_patients(_total_count_ integer, _offset_ integer) RETURNS bigint
             'lastUpdated', CURRENT_TIMESTAMP
           ),
          'resourceType', 'Patient',
-         'gender', gender,
+         'gender', (first_name).sex,
          'birthDate', birth_date,
          'name', ARRAY[
            json_build_object(
-            'given', ARRAY[given_name],
-            'family', ARRAY[family_name]
+            'given', ARRAY[(first_name).first_name],
+            'family', ARRAY[last_name]
            )
          ],
          'telecom', ARRAY[

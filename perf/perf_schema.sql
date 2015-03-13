@@ -34,31 +34,31 @@ select count(*) from temp.last_names;
 select count(*) from temp.languages;
 select count(*) from temp.street_names;
 
-create table if not exists temp.patient_names (
-  sex text,
-  first_name text,
-  last_name text
-);
+-- create table if not exists temp.patient_names (
+--   sex text,
+--   first_name text,
+--   last_name text
+-- );
 
-\set patients_total_count `echo $patients_total_count`
+-- \set patients_total_count `echo $patients_total_count`
 
-with x as (
-  select sex, first_name
-  from temp.first_names
-  limit ceil(sqrt((:'patients_total_count')::int))
-), y as (
-  select last_name
-  from temp.last_names
-  limit ceil(sqrt((:'patients_total_count')::int))
-)
-INSERT into temp.patient_names (sex, first_name, last_name)
-SELECT * FROM (
-  select sex, first_name, last_name from (
-    select xx.first_name, yy.last_name,
-           CASE WHEN xx.sex = 'M' THEN 'male' ELSE 'female' END as sex
-    from x as xx cross join y as yy) _
-  where not exists (select * from temp.patient_names)
-) __
-ORDER BY RANDOM();
+-- with x as (
+--   select sex, first_name
+--   from temp.first_names
+--   limit ceil(sqrt((:'patients_total_count')::int))
+-- ), y as (
+--   select last_name
+--   from temp.last_names
+--   limit ceil(sqrt((:'patients_total_count')::int))
+-- )
+-- INSERT into temp.patient_names (sex, first_name, last_name)
+-- SELECT * FROM (
+--   select sex, first_name, last_name from (
+--     select xx.first_name, yy.last_name,
+--            CASE WHEN xx.sex = 'M' THEN 'male' ELSE 'female' END as sex
+--     from x as xx cross join y as yy) _
+--   where not exists (select * from temp.patient_names)
+-- ) __
+-- ORDER BY RANDOM();
 
 select fhir.generate_tables('{Patient}');
