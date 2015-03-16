@@ -37,7 +37,10 @@ select count(*) from temp.street_names;
 create table if not exists temp.patient_names (
   sex text,
   first_name text,
-  last_name text
+  last_name text,
+  language_code text,
+  language_name text,
+  street_name text
 );
 
 \set patients_total_count `echo $patients_total_count`
@@ -45,19 +48,31 @@ create table if not exists temp.patient_names (
 with first_name_source as (
   select sex, first_name
   from temp.first_names
-  limit ceil(sqrt((:'patients_total_count')::int))
+  -- limit ceil(pow((:'patients_total_count')::float, 1.0/4.0))
 ), last_name_source as (
   select last_name
   from temp.last_names
-  limit ceil(sqrt((:'patients_total_count')::int))
+  -- limit ceil(pow((:'patients_total_count')::float, 1.0/4.0))
+), languages_source as (
+  select code, name
+  from temp.languages
+  -- limit ceil(pow((:'patients_total_count')::float, 1.0/4.0))
+), street_names_source as (
+  select street_name
+  from temp.street_names
+  -- limit ceil(pow((:'patients_total_count')::float, 1.0/4.0))
 )
-INSERT into temp.patient_names (sex, first_name, last_name)
+INSERT into temp.patient_names (sex, first_name, last_name, language_code, language_name, street_name)
 SELECT * FROM (
-  select sex, first_name, last_name from (
-    select first_names.first_name, last_names.last_name,
-           CASE WHEN first_names.sex = 'M' THEN 'male' ELSE 'female' END as sex
-    from first_name_source as first_names
-    cross join last_name_source as last_names) _
+  select sex, first_name, last_name, language_code, language_name, street_name from (
+    select _first_name.first_name, _last_name.last_name,
+           CASE WHEN _first_name.sex = 'M' THEN 'male' ELSE 'female' END as sex,
+           _language.code as language_code, _language.name as language_name,
+           _street_name.street_name
+    from first_name_source as _first_name
+    cross join last_name_source as _last_name
+    cross join street_names_source as _street_name
+    cross join languages_source as _language) _
   where not exists (select * from temp.patient_names)
 ) __
 ORDER BY RANDOM();
