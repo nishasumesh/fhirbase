@@ -1,3 +1,6 @@
+DEPRECIATED! The latest Fhirbase development is currently taking place
+in the Fhirbase 2 repo <https://github.com/fhirbase/fhirbase-plv8>.
+
 # FHIRbase
 
 ![fhirbase](https://avatars3.githubusercontent.com/u/6482975?v=3&s=400)
