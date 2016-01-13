@@ -1,5 +1,5 @@
-DEPRECIATED! The latest Fhirbase development is currently taking place
-in the Fhirbase 2 repo <https://github.com/fhirbase/fhirbase-plv8>.
+WARNING\: This repository will be replaced by
+[fhirbase-plv8](https://github.com/fhirbase/fhirbase-plv8)!
 
 # FHIRbase
 
