@@ -1,5 +1,4 @@
-WARNING\: This repository will be replaced by
-[fhirbase-plv8](https://github.com/fhirbase/fhirbase-plv8)!
+# [WARNING] This repository will be replaced by [Fhirbase 2](https://github.com/fhirbase/fhirbase-plv8)
 
 # FHIRbase
 
